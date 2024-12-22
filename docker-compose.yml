@@ -1,0 +1,43 @@
+---
+version: '3'
+services:
+    app:
+        build:
+            context: ./docker
+            dockerfile: Dockerfile
+        volumes:
+          - type: volume
+            source: app
+            target: /app/App42PaaS-Java-MySQL-Sample/target
+          - type: volume
+            source: app
+            target: app/App42PaaS-Java-MySQL-Sample/WebContent/Config.properties
+
+    bd:
+        image: mysql:8
+        restart: always
+        ports:
+          - "8514:8514"
+        environment:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: dd
+          MYSQL_USER: prod
+          MYSQL_PASSWORD: 795687
+        volumes:
+          - ./dbdata:/var/lib/mysql/
+
+    tomcat:
+        image: tomcat:jre8-alpine
+        restart: 'on-failure'
+        ports:
+            - '8080:8080'
+        volumes:
+          - type: volume
+            source: app
+            target: /usr/local/tomcat/webapps
+          - type: volume
+            source: app
+            target: /var/lib/tomcat9/ROOT/
+
+volumes:
+    app:
