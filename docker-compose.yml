@@ -5,41 +5,22 @@ services:
         build:
             context: ./Docker
             dockerfile: Dockerfile
-        volumes:
-          - type: volume
-            source: war
-            target: /app/App42PaaS-Java-MySQL-Sample/target
-          - type: volume
-            source: db_env
-            target: /app/App42PaaS-Java-MySQL-Sample/WebContent/Config.properties
+        restart: 'on-failure'
+        ports:
+            - '8080:8080'
+        depends_on:
+          - db
 
     db:
-        image: mysql:8
+        image: mysql:5.7
         restart: 'on-failure'
         ports:
           - '8514:8514'
         environment:
           MYSQL_ROOT_PASSWORD: 'secret'
           MYSQL_DATABASE: 'dd'
-          MYSQL_USER: 'prod'
-          MYSQL_PASSWORD: '795687'
         volumes:
-          - ./mysql:/var/lib/mysql
+          - db:/var/lib/mysql
 
-    tomcat:
-        image: tomcat:jre8-alpine
-        restart: 'on-failure'
-        ports:
-            - '8080:8080'
-        volumes:
-          - type: volume
-            source: war
-            target: /usr/local/tomcat/webapps
-          - type: volume
-            source: db_env
-            target: /usr/local/tomcat/ROOT
-        depends_on:
-          - app
 volumes:
-    war:
-    db_env:
+    db:
